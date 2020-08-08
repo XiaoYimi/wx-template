@@ -1,0 +1,35 @@
+/**app.wxss**/
+
+page,
+view,
+cover-view,
+cover-image,
+scroll-view,
+swiper,
+swipre-item,
+picker,
+picker-view,
+form,
+map,
+canvas {  box-sizing: border-box; }
+
+.page-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.line-b, .line-t { position: relative; }
+.line-t::after, .line-b::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 1rpx;
+  content: '';
+  background-color: #eeeeee;
+  transform: scaleY(.5);
+}
+
+.line-t::after { top: 0; }
+.line-b::after { bottom: 0; }
+

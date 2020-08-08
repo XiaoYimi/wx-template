@@ -1,0 +1,11 @@
+<!--index.wxml-->
+<view class="page-wrap">
+  <view class="develop-list">
+    <block wx:for="{{ developList }}" wx:key="index">
+      <view
+        data-url="{{ item.url }}"
+        bind:tap="hrefTo"
+        class="line-b develop-list-item">{{ item.name }}</view>
+    </block>
+  </view>
+</view>

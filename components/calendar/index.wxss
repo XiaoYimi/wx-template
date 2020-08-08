@@ -1,0 +1,82 @@
+/* components/calendar/index.wxss */
+.calendar-wrap {
+  position: relative;
+  box-sizing: border-box;
+  padding: 20rpx;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 2rpx 2rpx #eeeeee;
+}
+
+.calendar-wrap::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 1px;
+  content: '';
+  background-color: #eeeeee;
+  transform: scaleY(.5);
+}
+
+.calendar-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 60rpx;
+}
+
+.calendar-title-year,
+.calendar-title-month {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-title-content {
+  flex: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.calendar-bar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20rpx;
+  width: 100%;
+  height: 80rpx;
+}
+
+.calendar-dates {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.calendar-dates-item {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 14.285714%;
+  height: 101.4285694rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #212b36;
+}
+
+.calendar-dates-item.on {
+  border-radius: 50%;
+  color: #ffffff;
+  background-color: #16b6ff;
+}

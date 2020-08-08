@@ -1,0 +1,12 @@
+/**index.wxss**/
+
+.develop-list { padding: 20rpx 40rpx; }
+
+.develop-list-item { line-height: 80rpx; }
+
+
+.line {
+  margin: 50rpx 0;
+  height: 10rpx;
+  background-color: #eeeeee;
+}

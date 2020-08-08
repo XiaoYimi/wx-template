@@ -1,0 +1,30 @@
+<!--components/calendar/index.wxml-->
+<view
+  bind:touchstart="touchStart"
+  bind:touchend="touchEnd"
+  class="calendar-wrap">
+
+  <view class="calendar-title">
+    <text decode="true" bind:tap="prevYear" class="calendar-title-year"> &lt;&lt; </text>
+    <text decode="true" bind:tap="prevMonth" class="calendar-title-month"> &lt; </text>
+    <view class="calendar-title-content">{{ calendar.title}}</view>
+    <text decode="true" bind:tap="nextMonth" class="calendar-title-month"> &gt; </text>
+    <text decode="true" bind:tap="nextYear" class="calendar-title-year"> &gt;&gt; </text>
+  </view>
+
+  <view class="calendar-bar">
+    <block wx:for="{{ barList }}" wx:key="index">
+      <view class="calendar-bar-item">{{ item }}</view>
+    </block>
+  </view>
+
+  <view class="calendar-dates">
+    <block wx:for="{{calendar.dateList}}" wx:key="index">
+      <view
+        data-date="{{ item.value }}"
+        bind:tap="selectDate"
+        class="calendar-dates-item {{ item.value === activeDate ? 'on' : '' }}"
+      >{{ item.value }}</view>
+    </block>
+  </view>
+</view>

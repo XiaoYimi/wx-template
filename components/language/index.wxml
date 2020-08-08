@@ -1,0 +1,11 @@
+<!--components/language/index.wxml-->
+
+<picker
+  value="{{ index }}" 
+  range="{{ languages }}"
+  range-key="name"
+  bindchange="languageChange">
+  {{ languages[index].name }}
+</picker>
+
+

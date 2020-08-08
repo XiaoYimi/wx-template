@@ -1,0 +1,4 @@
+<!--pages/calendar/index.wxml-->
+<view class="page-wrap">
+  <calendar bind:select="selectDate" />
+</view>
