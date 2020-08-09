@@ -2,13 +2,17 @@
 /* HTTP 请求基本配置 (优先级: new 实例配置 > 当前基本配置) */
 const httpConfig = {
   /* 是否启用 baseUrl */
-  withBaseUrl: true,
+  withBaseUrl: false,
   /* 是否在控制台打印请求日志 */
   isOpenRequestLog: true,
+  /* 是否关闭蒙层弹窗(加载中) */
+  closeLoding: false,
   /* 请求路径的前面公共部分 */
-  baseUrl: 'https://github.com/xiaoyimi',
+  baseUrl: '',
   /* 请求信息头 headers */
   header: { 'content-type': 'application/json', },  
+  /* 网络请求超时时间(ms) */
+  timeout: null,
 };
 
 /* HTTP 状态码对应的错误信息,用于请求日志 */

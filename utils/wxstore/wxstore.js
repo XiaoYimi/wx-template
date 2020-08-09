@@ -18,7 +18,6 @@ function loadWxStore () {
 /* 从栈集合中移除当前页面(组件)实例 */
 function unLoadStore () {
   const index = pageList.findIndex(page => { page === this })
-  console.log(index)
   if (index > -1) { pageList.splice(index, 1); }
 }
 
@@ -90,3 +89,9 @@ function initComponent () {
 
 initPage();
 initComponent();
+
+module.exports = {
+  WXStore,
+  pageList,
+  setWXState
+};

@@ -2,6 +2,8 @@
 //获取应用实例
 const app = getApp()
 
+console.log(app, 'index-app')
+
 Page({
   data: {
     motto: 'Hello World',
@@ -61,5 +63,8 @@ Page({
       userInfo: e.detail.userInfo,
       hasUserInfo: true
     })
+  },
+  onShow: function () {
+    console.log('index onshow')
   }
 })

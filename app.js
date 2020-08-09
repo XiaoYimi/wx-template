@@ -1,21 +1,27 @@
 //app.js
 
-/* 开始时间锚点 */
+/* App 启动时间锚点 */
 const stime = +new Date();
 
-const WXStore = require('./utils/wxstore');
+/* 引入小程序状态管理 */
+const {
+  WXStore,
+  pageList,
+  setWXState
+} = require('./utils/wxstore/wxstore');
 
-/* 引入请求对象 */
-const WXHTTP = require('./utils/wxhttp');
+/* 引入小程序请求对象 */
+const WXHTTP = require('./utils/wxhttp/wxhttp');
 const Language = require('./utils/language/index'); 
 
 App({
   /* 仅首次加载 */
   onLaunch: function () {
-
+    
     /* 挂载 wxhttp */
     if (WXHTTP) {
       const wxhttp = new WXHTTP({
+        withBaseUrl: true,
         // baseUrl: 'https://github.com/xiaoyimi',
         isOpenRequestLog: true, /* 输出请求日志(true|false) */
         baseUrl: 'http://appnew.gzonline.gov.cn:83'
@@ -24,6 +30,11 @@ App({
       console.log('加载 WXHTTP 耗时::', +new Date() - stime);
     }
 
+    /* 挂载语言包 Language */
+    if (Language) { this.Language = Language; }
+
+    setWXState({ name: '筱依米' })
+
     /* 小程序更新对象 */
     const updateManager = wx.getUpdateManager();
     /* 小程序在冷启动时自动检查更新 */
@@ -31,7 +42,6 @@ App({
       const { hasUpdate } = res;
       console.log('自动检查更新中', '当前小程序版本为' + (hasUpdate ? '新版本' : '原版本'));
     });
-
     /* 小程序更新(客户端自动触发) */
     updateManager.onUpdateReady(() => {
       /* 小程序新版本提示 */
@@ -82,6 +92,7 @@ App({
     });
 
     /* 获取设备信息, 根据缓存决定小程序语种显示 */
+    console.log('get language')
     const new_deviceInfo = wx.getSystemInfoSync();
     let deviceInfo = wx.getStorageSync('deviceInfo');
     deviceInfo = deviceInfo ? deviceInfo : {};
@@ -90,6 +101,14 @@ App({
   },
 
   onShow: function () {
+    /* 切换后台再进入页面时触发 */
+    if (this.Language) {
+      const deviceLanguage = wx.getStorageSync('deviceInfo').language;
+      console.log('设备语言::', deviceLanguage)
+      console.log('set language')
+    }
+
+
     /* 获取网络类型和网络状态 */
     wx.onNetworkStatusChange(res => {
       console.log(this, res)

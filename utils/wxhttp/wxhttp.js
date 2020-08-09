@@ -16,7 +16,7 @@
     使用 abort 方法,可对 Promise 进行控制(暂未实现)
 */
 
-const { httpConfig, httpMsg } = require('./config');
+const { httpConfig, httpMsg } = require('./httpConfig');
 
 class WXHTTP {
   /* 初始化 HTTP 配置 (config 为 Object) */
@@ -24,24 +24,21 @@ class WXHTTP {
     
     config = !Array.isArray(config) && typeof config === 'object' ? config : {};
 
-    /* 是否启用 baseUrl */
-    if (config.withBaseUrl === undefined) { config.withBaseUrl = true; }
+    /* wxhttp 实例配置,用实例未进行配置,则使用默认配置 */
+    if (config.withBaseUrl === undefined) { config.withBaseUrl = httpConfig.withBaseUrl; }
+    if (config.baseUrl === undefined) { config.baseUrl = httpConfig.baseUrl; }
+    if (config.header === undefined) { config.header = httpConfig.header; }
+    if (config.isOpenRequestLog === undefined) { config.isOpenRequestLog = httpConfig.isOpenRequestLog; }
+    if (config.timeout === undefined) { config.timeout = httpConfig.timeout; }
+    if (config.closeLoding === undefined) { config.closeLoding = httpConfig.closeLoding; }
 
-    /* 初始化实例配置 */
-    if (!config.baseUrl) { config.baseUrl = ''; }
-    if (config.header === undefined) { config.header = {}; }
-
-    config.isOpenRequestLog = config.isOpenRequestLog === undefined ? httpConfig.isOpenRequestLog : config.isOpenRequestLog;
-
-    /* 将实例配置保存到实例 */
-    if (config.timeout) { this.timeout = config.timeout; }
+    /* 初始化 wxhttp 配置 */
     this.withBaseUrl = config.withBaseUrl;
-    this.baseUrl = config.withBaseUrl ? (
-      config.baseUrl ? config.baseUrl : (httpConfig.baseUrl ? httpConfig.baseUrl : '')
-    ) : '';
-    this.header = Object.assign(config.header, httpConfig.header);
-    /* 是否开启控制台输出请求日志 */
+    this.baseUrl = config.baseUrl;
+    this.header = config.header;
     this.isOpenRequestLog = config.isOpenRequestLog;
+    this.timeout = config.timeout;
+    this.closeLoding = config.closeLoding;
   }
 
   /* GET 请求 (options 为 Object) */
@@ -59,8 +56,13 @@ class WXHTTP {
   /* 处理请求参数集合 */
   dealOptions (options) {
     /* 合并 wxhttp 实例配置项 */
-    options.url = this.baseUrl + options.url;
-    options.header = Object.assign(this.header, options.header);
+    const { withBaseUrl, baseUrl, header, isOpenRequestLog, timeout, closeLoding } = this;
+
+    if (withBaseUrl) { options.url = baseUrl + options.url; }
+    options.header = Object.assign(header, options.header);
+    options.timeout = timeout;
+    options.closeLoding = closeLoding;
+    options.isOpenRequestLog = isOpenRequestLog;
 
     /* 小程序请求的默认参数 */
     const defOptions = {
@@ -75,7 +77,7 @@ class WXHTTP {
       enableQuic: false,
       enableCache: false,
 
-      /* 追加自定义属性 */
+      /* 自定义属性,用于请求时是否关闭蒙层弹窗(加载中) */
       closeLoding: false,
     };
     
@@ -90,27 +92,30 @@ class WXHTTP {
       url, method, header, data,
       timeout, dataType, responseType,
       enableHttp2, enableQuic, enableCache,
-      closeLoding
+      closeLoding, isOpenRequestLog
     } = options;
 
     /* 根据当前请求配置是否显示加载蒙层 */
     if (!closeLoding) { wx.showLoading({  title: '加载中...' }); }
 
     return new Promise((res, rej) => {
-      /* 请求中是否包含网址 */
-      const hasPreHttp = /^http(s)?:/.test(url);
-
       /* 请求前的日志记录 */
-      const tips = { url, method, params: data, req_header: header, closeLoding, };
+      const tips = { url, method, params: data, req_header: header, closeLoding };
 
-      /* 对请求路径进行识别处理 */
-      if (!hasPreHttp) {
-        if (this.withBaseUrl) {
-          url = this.baseUrl + url;
-        } else {
-          /* 返回的数据结构同后端返回的数据结构一致 */
-          rej({ code: -1, data: null,  msg: '请求中 URL 缺少请求网址' });
-        }
+      /* 校对请求网址是否输入正确格式 */
+      let httpLen = url.match(/http(s)?:/g);
+      httpLen = httpLen ? httpLen.length : 0;
+
+      if (httpLen < 1) {
+        /* 返回的数据结构同后端返回的数据结构一致 */
+        if (!options.closeLoding) { wx.hideLoading(); }
+        if (isOpenRequestLog) { this.httpTip(tips); }
+        rej({ code: -1, data: null,  msg: '缺少请求网址 http(s)://' });
+      }
+      if (httpLen > 1) {
+        if (!options.closeLoding) { wx.hideLoading(); }
+        if (isOpenRequestLog) { this.httpTip(tips); }
+        rej({ code: -1, data: null,  msg: '请求网址 http(s):// 填写错误' });
       }
       
       /* 发送请求 */
@@ -133,19 +138,18 @@ class WXHTTP {
           tips.res_header = header;
 
           /* 控制台中输出请求日志 */
-          if (this.isOpenRequestLog) { this.httpTip(tips); }
+          if (isOpenRequestLog) { this.httpTip(tips); }
           
           res(result.data);
         },
         fail: error => {
           if (!options.closeLoding) { wx.hideLoading(); }
+
+          /* 控制台中输出请求日志 */
+          if (isOpenRequestLog) { this.httpTip(tips); }
           /* 根据项目需求,请自行更改为后台返回同等数据结构的字段属性 */
           /* 例如后台返回: { code, data, msg } 等字段 */
-          rej({
-            code: -1,
-            data: null,
-            msg: '网络异常或请求超时'
-          });
+          rej({ code: -1, data: null, msg: '网络异常或请求超时' });
         }
       });
     });
@@ -163,8 +167,8 @@ class WXHTTP {
   }
 
   /* 是否为 Object 类型值 */
-  isObject (obj) {
-    return !Array.isArray(obj) && typeof obj === 'object';
+  isObject (any) {
+    return !Array.isArray(any) && typeof any === 'object';
   }
 
   /* 是否为字符串格式的 json 对象*/
