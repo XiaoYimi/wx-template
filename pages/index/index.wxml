@@ -1,5 +1,7 @@
 <!--index.wxml-->
 <view class="page-wrap">
+  <view class="author">{{ $wxstate.author }} -- {{ $wxstate.animal }}</view>
+
   <view class="develop-list">
     <block wx:for="{{ developList }}" wx:key="index">
       <view

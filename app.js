@@ -3,6 +3,8 @@
 /* 开始时间锚点 */
 const stime = +new Date();
 
+const WXStore = require('./utils/wxstore');
+
 /* 引入请求对象 */
 const WXHTTP = require('./utils/wxhttp');
 const Language = require('./utils/language/index'); 

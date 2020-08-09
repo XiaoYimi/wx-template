@@ -49,6 +49,10 @@ Page({
         }
       })
     }
+
+    this.setData({ [`$wxstate.author`]: 'xiaoyimi' })
+
+    console.log('index data::', this)
   },
   getUserInfo: function(e) {
     console.log(e)
