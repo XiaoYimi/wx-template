@@ -14,16 +14,27 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    wxhttp.post('/house/judicature/getJudicatureType')
+    wxhttp.request({
+      url: '/user/signin',
+      method: 'POST',
+      header: {},
+      data: {
+        "signId": '512023124839',
+        "signTime": '1596957709933',
+        "signCode": '37CA7D9A713FC0330B1259AB0137C193',
+        "body": {
+            "phone": '13250309350',
+            "realName": '莫健峰',
+            "idCard": '441521199503073619'
+        }
+      }
+    })
     .then(res => {
       console.log(res)
     }).catch(err => {
       console.log(err)
     })
 
-    wxhttp.post('/house/judicature/getJudicatureType')
-    .then(res => console.log('2 res', res))
-    .catch(err => console.log('2 err', err))
   },
 
   /**

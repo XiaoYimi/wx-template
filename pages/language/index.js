@@ -1,4 +1,6 @@
 // pages/language/index.js
+const Language = require('../../utils/language/index');
+console.log(Language)
 Page({
 
   /**

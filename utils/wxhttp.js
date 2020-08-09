@@ -11,6 +11,9 @@
   使用注意:
     如有问题,欢迎交流;
     请求信息头 header 一次配置,实例共享
+
+  待优化事项
+    使用 abort 方法,可对 Promise 进行控制(暂未实现)
 */
 
 const { httpConfig, httpMsg } = require('./config');
@@ -41,52 +44,88 @@ class WXHTTP {
     this.isOpenRequestLog = config.isOpenRequestLog;
   }
 
-  /* GET 请求 */
-  get (url, data = {}, header = {}) {
-    url = this.baseUrl + url;
-    Object.assign(this.header, header);
-    return this.request(url, data, header, 'GET');
+  /* GET 请求 (options 为 Object) */
+  get (options) {
+    options.method = 'GET';
+    return this.request(options);
   }
 
-  /* POST 请求 */
-  post (url, data = {}, header = {}) {
-    url = this.baseUrl + url;
-    header = Object.assign(this.header, header);
-    return this.request(url, data, header, 'POST');
+  /* POST 请求 (options 为 Object) */
+  post (options) {
+    options.method = 'POST';
+    return this.request(options);
   }
 
-  /* 通用 请求 */
-  request (url, data, header, method = 'GET') {
-    wx.showLoading({  title: '加载中...' });
+  /* 处理请求参数集合 */
+  dealOptions (options) {
+    /* 合并 wxhttp 实例配置项 */
+    options.url = this.baseUrl + options.url;
+    options.header = Object.assign(this.header, options.header);
+
+    /* 小程序请求的默认参数 */
+    const defOptions = {
+      url: '',
+      method: 'GET',
+      header: {},
+      data: {},
+      dataType: 'json',
+      timeout: null,
+      responseType: 'text',
+      enableHttp2: false,
+      enableQuic: false,
+      enableCache: false,
+
+      /* 追加自定义属性 */
+      closeLoding: false,
+    };
+    
+    options = Object.assign(defOptions, options);
+    return options;
+  }
+
+  /* 通用请求 (options 为 Object) */
+  request (options) {
+    options = this.dealOptions(options);
+    let {
+      url, method, header, data,
+      timeout, dataType, responseType,
+      enableHttp2, enableQuic, enableCache,
+      closeLoding
+    } = options;
+
+    /* 根据当前请求配置是否显示加载蒙层 */
+    if (!closeLoding) { wx.showLoading({  title: '加载中...' }); }
+
     return new Promise((res, rej) => {
       /* 请求中是否包含网址 */
       const hasPreHttp = /^http(s)?:/.test(url);
 
       /* 请求前的日志记录 */
-      const tips = { url, method, params: data, req_header: header };
+      const tips = { url, method, params: data, req_header: header, closeLoding, };
 
+      /* 对请求路径进行识别处理 */
       if (!hasPreHttp) {
         if (this.withBaseUrl) {
           url = this.baseUrl + url;
         } else {
-          rej({
-            code: -1,
-            data: null,
-            msg: '请求中 URL 缺少请求网址'
-          });
+          /* 返回的数据结构同后端返回的数据结构一致 */
+          rej({ code: -1, data: null,  msg: '请求中 URL 缺少请求网址' });
         }
       }
+      
+      /* 发送请求 */
       wx.request({
         url,
         method,
         data,
         header,
-        timeout: this.timeout ? this.timeout : null,
+        timeout,
         success: result => {
-          wx.hideLoading();
+          if (!options.closeLoding) { wx.hideLoading(); }
+          
           const { statusCode, data, errMsg, cookies, header } = result;
 
-          /* 请求后的日志记录 */
+          /* 后台数据返回的日志记录 */
           tips.statusCode = statusCode;
           tips.data = data;
           tips.errMsg = errMsg;
@@ -99,7 +138,7 @@ class WXHTTP {
           res(result.data);
         },
         fail: error => {
-          wx.hideLoading();
+          if (!options.closeLoding) { wx.hideLoading(); }
           /* 根据项目需求,请自行更改为后台返回同等数据结构的字段属性 */
           /* 例如后台返回: { code, data, msg } 等字段 */
           rej({
@@ -112,7 +151,7 @@ class WXHTTP {
     });
   }
 
-  /* 对所有 Promise 对象进行处理; 若出错,则在 catch 返回第一个出错的结果 */
+  /* 对所有 Promise 对象进行处理; 若请求出错,则在 catch 返回第一个出错的结果 */
   all (promises) {
     return Promise.all(promises)
   }

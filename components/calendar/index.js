@@ -1,4 +1,9 @@
 // components/calendar/index.js
+/*
+ 注意事项: 
+   由于苹果对于时间格式(2020-08-08)的支持不太友好,开发者可通过 timestamp 自行转换.
+*/
+
 Component({
   /**
    * 组件的属性列表
@@ -11,16 +16,13 @@ Component({
    */
   data: {
 
-    // 星期列表
+    /* 星期列表(不可变) */ 
     barList: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
 
-    // 用于选中状态的样式显示
-    activeDate: 0,
-
-    // 临时手势滑动对象,用于判断左右滑动
+    /* 临时手势滑动对象,用于判断左右滑动 */
     startTouch: {},
 
-    // 日历对象
+    /* 日历对象 */
     calendar: {
       year: 0,
       month: 0, /* 0 1月份*/
@@ -35,9 +37,13 @@ Component({
       },
     },
 
+    /* 初始化默认值必定为 true, 否则日历组件错乱(设置不可变) */
     isInit: true,
 
-    dateList: [], /* 日期列表 */
+    /* 日期列表 */
+    dateList: [],
+    /* 用于选中状态的样式显示(1~31) */
+    activeDate: 0,
   },
 
   // 属性监听
@@ -50,7 +56,6 @@ Component({
       }
     },
   },
-
   /**
    * 组件的方法列表
    */
@@ -93,7 +98,6 @@ Component({
         [`calendar.dateList`]: dateList,
       })
     },
-
     // 获取指定年月的天数(月份索引 0 开始)
     getDateListLen (year, month) {
       return (new Date(year, month + 1, 0)).getDate();
@@ -114,7 +118,7 @@ Component({
       }
       return { Y: year, M: month };
     },
-    // 日期选择
+    // 日期选择(返回字段 年,月,日,时间戳和字符串值)
     selectDate (e) {
       const date = parseInt(e.currentTarget.dataset.date);
       if (date === '0') { return; }
@@ -134,6 +138,7 @@ Component({
         month,
         date,
         value: [year, this.addPreZero(month + 1), this.addPreZero(date)].join('-'),
+        timestamp: +new Date(year, month, date),
       });
     },
     // 开始滑动
@@ -175,25 +180,14 @@ Component({
       const { Y, M } = this.dealYearMonth(year, month, true);
       this.initCalendar(+new Date(Y, M, 1))
     },
-
     // 是否添加前缀字符 0 
     addPreZero (n) {
       return String(n)[1]? n : '0' + n;
     },
-
   },
   // 生命周期
   lifetimes: {
     /* 组件初始化值 */
-    attached () {
-      const {createTime} = this.data
-      this.initCalendar(+new Date(1995, 2, 7));
-      console.log('offsetTime::',  (+new Date()) - createTime)
-    },
+    attached () { this.initCalendar(); },
   },
-  created () {
-    const timestamp = +new Date()
-    console.log('createTime::', timestamp)
-    this.setData({ createTime: timestamp })
-  }
 })

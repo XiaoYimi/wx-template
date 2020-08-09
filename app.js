@@ -5,6 +5,7 @@ const stime = +new Date();
 
 /* 引入请求对象 */
 const WXHTTP = require('./utils/wxhttp');
+const Language = require('./utils/language/index'); 
 
 App({
   /* 仅首次加载 */
@@ -55,7 +56,7 @@ App({
       success: res => {
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
       }
-    })
+    });
     
     // 获取用户信息
     wx.getSetting({
@@ -76,7 +77,14 @@ App({
           })
         }
       }
-    })
+    });
+
+    /* 获取设备信息, 根据缓存决定小程序语种显示 */
+    const new_deviceInfo = wx.getSystemInfoSync();
+    let deviceInfo = wx.getStorageSync('deviceInfo');
+    deviceInfo = deviceInfo ? deviceInfo : {};
+    deviceInfo = Object.assign(new_deviceInfo, deviceInfo);
+    wx.setStorageSync('deviceInfo', deviceInfo);
   },
 
   onShow: function () {

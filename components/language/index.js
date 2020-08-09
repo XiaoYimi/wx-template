@@ -14,9 +14,7 @@ Component({
     languages: [
       { id: 0, name: '简体中文', file: 'zh_CN' },
       { id: 1, name: '英语', file: 'en' },
-      { id: 2, name: '日语', file: 'ja' },
-      { id: 3, name: '韩语', file: 'kr' },
-      { id: 3, name: '法语', file: 'fr' }
+      { id: 2, name: '日语', file: 'ja' }
     ],
     index: 0,
   },
