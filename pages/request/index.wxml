@@ -1,2 +1,13 @@
 <!--pages/request/index.wxml-->
 <text>请查看控制台日志输出</text>
+
+<view>接口测试</view>
+
+<block wx:for="{{ requestList }}">
+  <view
+    data-url="{{ item.url }}"
+    data-params="{{ item.params }}"
+    bindtap="sendRequest">
+    {{ item.desc }}
+  </view>
+</block>

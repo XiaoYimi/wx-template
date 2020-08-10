@@ -173,6 +173,7 @@ class WXHTTP {
 
   /* 是否为字符串格式的 json 对象*/
   isStrJson (strJson) {
+    if (this.isObject(strJson)) { return false; }
     const startState = strJson.startsWith('{');
     const endingState = strJson.endsWith('}');
     const isObject = this.isObject(JSON.parse(strJson));
@@ -182,14 +183,13 @@ class WXHTTP {
   /* 将 json 对象转换为以字符 & 拼接的字符串 */
   json_str (json) {
     let str = '';
-    const isObject = this.isObject(json);
-    if (isStrJson) { json = JSON.parse(json); }
     const isStrJson = this.isStrJson(json);
-
+    if (isStrJson) { json = JSON.parse(json); }
+    const isObject = this.isObject(json);
     if (isObject) {
       Object.entries(json).forEach(item => {
         const [key, val] = item;
-        str += key + '=' + val;
+        str += key + '=' + val + '&';
       })
       str = str.slice(0, -1);
     }
