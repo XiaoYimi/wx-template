@@ -12,7 +12,10 @@ const {
 
 /* 引入小程序请求对象 */
 const WXHTTP = require('./utils/wxhttp/wxhttp');
-const Language = require('./utils/language/index'); 
+const Language = require('./utils/language/index');
+
+const lang = Language.getCurrentLanguage();
+console.log(lang)
 
 App({
   /* 仅首次加载 */
@@ -101,14 +104,6 @@ App({
   },
 
   onShow: function () {
-    /* 切换后台再进入页面时触发 */
-    if (this.Language) {
-      const deviceLanguage = wx.getStorageSync('deviceInfo').language;
-      console.log('设备语言::', deviceLanguage)
-      console.log('set language')
-    }
-
-
     /* 获取网络类型和网络状态 */
     wx.onNetworkStatusChange(res => {
       console.log(this, res)

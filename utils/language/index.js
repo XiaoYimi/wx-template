@@ -25,8 +25,6 @@ const getLanguageMap = (key = 'zh_CN') => {
   return languages[key].languageMap;
 };
 
-console.log(getLanguageMap());
-
 /* 将中文翻译成指定语言版本的文字 */
 const translateText = text => {
   return getLanguageMap()[text] || text;
@@ -37,6 +35,5 @@ module.exports = {
 
   getCurrentLanguage,
   getLanguageMap,
-  translateText,
-  languages
+  translateText
 };
